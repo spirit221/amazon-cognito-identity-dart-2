@@ -37,6 +37,7 @@ class CognitoUser {
   String? _session;
   CognitoUserSession? _signInUserSession;
   String? username;
+  String? srp_username;
   String? _clientSecretHash;
   CognitoUserPool pool;
   Client? client;
@@ -593,6 +594,9 @@ class CognitoUser {
     final challengeParameters = data['ChallengeParameters'];
 
     String srp_username = challengeParameters['USER_ID_FOR_SRP'];
+
+    _srp_username = srp_username;
+
     serverBValue = BigInt.parse(challengeParameters['SRP_B'], radix: 16);
     saltString =
         authenticationHelper.toUnsignedHex(challengeParameters['SALT']);
@@ -835,7 +839,7 @@ class CognitoUser {
   Future<CognitoUserSession?> sendMFACode(String confirmationCode,
       [String mfaType = 'SMS_MFA']) async {
     final challengeResponses = {
-      'USERNAME': username,
+      'USERNAME': _srp_username ?? username,
       'SMS_MFA_CODE': confirmationCode,
     };
     if (mfaType == 'SOFTWARE_TOKEN_MFA') {
@@ -844,7 +848,7 @@ class CognitoUser {
 
     await getCachedDeviceKeyAndPassword();
     if (_deviceKey != null) {
-      challengeResponses['DEVICE_KEY'] = _deviceKey;
+      challengeResponses['DEVICE_KEY'] = _deviceKey!;
     }
 
     final paramsReq = {
