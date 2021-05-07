@@ -37,7 +37,7 @@ class CognitoUser {
   String? _session;
   CognitoUserSession? _signInUserSession;
   String? username;
-  String? srp_username;
+  String? _srp_username;
   String? _clientSecretHash;
   CognitoUserPool pool;
   Client? client;
